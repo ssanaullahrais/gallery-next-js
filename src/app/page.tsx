@@ -1,5 +1,3 @@
-//v5
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -34,7 +32,7 @@ type PhotoType = GalleryImage;
 
 // Optimized Next.js Image component rendering that maintains aspect ratio
 function renderNextJsImage<T extends PhotoType>(
-  { alt = "", title, sizes }: RenderImageProps,
+  { alt = "", title }: RenderImageProps, // Removed unused 'sizes' parameter
   { photo, width, height }: RenderImageContext<T>,
 ) {
   return (
@@ -131,7 +129,7 @@ export default function Gallery() {
           carousel={{
             finite: false,
             preload: 2,
-            padding: 20, // Changed from object to number
+            padding: 20,
           }}
           // Add thumbnail configuration
           thumbnails={{
