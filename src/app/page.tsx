@@ -1,5 +1,4 @@
-// v5
-
+// v6
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -92,7 +91,7 @@ export default function Gallery() {
             layout="columns"
             columns={(containerWidth) => {
               // Responsive column adjustment
-              if (containerWidth < 640) return 1;
+              if (containerWidth < 640) return 2;
               if (containerWidth < 768) return 2;
               if (containerWidth < 1280) return 3;
               return 4;
