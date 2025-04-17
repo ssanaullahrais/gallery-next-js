@@ -1,3 +1,5 @@
+// v5
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,8 +8,9 @@ import { motion } from 'framer-motion';
 import {
   RenderImageContext,
   RenderImageProps,
-  ColumnsPhotoAlbum,
 } from "react-photo-album";
+
+import PhotoAlbum from "react-photo-album";
 
 // Import gallery configuration with proper TypeScript types
 import { galleryImages, GalleryImage } from './images';
@@ -18,21 +21,15 @@ import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import Slideshow from "yet-another-react-lightbox/plugins/slideshow";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
-import Captions from "yet-another-react-lightbox/plugins/captions";
 
 // Import CSS
-import "react-photo-album/columns.css";
+import "react-photo-album/styles.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
-import "yet-another-react-lightbox/plugins/captions.css";
-
-// Extend the PhotoAlbum photo type with our additional properties
-// This creates a union type that combines both requirements
-type PhotoType = GalleryImage;
 
 // Optimized Next.js Image component rendering that maintains aspect ratio
-function renderNextJsImage<T extends PhotoType>(
-  { alt = "", title }: RenderImageProps, // Removed unused 'sizes' parameter
+function renderNextJsImage<T extends GalleryImage>(
+  { alt = "", title }: RenderImageProps,
   { photo, width, height }: RenderImageContext<T>,
 ) {
   return (
@@ -45,15 +42,15 @@ function renderNextJsImage<T extends PhotoType>(
     >
       <Image
         fill
-        src={photo}
+        src={photo.src}
         alt={alt || "Gallery image"}
         title={title}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         placeholder={photo.blurDataURL ? "blur" : undefined}
         blurDataURL={photo.blurDataURL}
         style={{ objectFit: "cover" }}
-        priority={false} // Only set true for above-the-fold images
-        quality={95} // Increased quality from default 75 to 95
+        priority={false}
+        quality={95}
       />
     </div>
   );
@@ -61,25 +58,23 @@ function renderNextJsImage<T extends PhotoType>(
 
 export default function Gallery() {
   const [index, setIndex] = useState(-1);
-  const [photos] = useState<PhotoType[]>(galleryImages);
+  const [photos] = useState<GalleryImage[]>(galleryImages);
   const [loading, setLoading] = useState(true);
 
-  // Update with actual image dimensions when needed, using a more efficient approach
+  // Simple loading state to ensure smooth transitions
   useEffect(() => {
-    const updateActualDimensions = async () => {
-      try {
-        // Mark loading as complete after a short delay to ensure smooth transitions
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      } catch (error) {
-        console.error('Error updating image dimensions:', error);
-        setLoading(false);
-      }
-    };
-
-    updateActualDimensions();
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
+
+  // Debugging: log photo information to console
+  useEffect(() => {
+    console.log('Gallery initialized with photos:', photos.length);
+    // Log the first few photos to check their structure
+    console.log('Sample photos:', photos.slice(0, 3));
+  }, [photos]);
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -92,8 +87,9 @@ export default function Gallery() {
         {/* Wrapper div with the loading class */}
         <div className={loading ? "gallery-loading" : "gallery-loaded"}>
           {/* Gallery implementation with proper Next.js image optimization */}
-          <ColumnsPhotoAlbum<PhotoType>
+          <PhotoAlbum<GalleryImage>
             photos={photos}
+            layout="columns"
             columns={(containerWidth) => {
               // Responsive column adjustment
               if (containerWidth < 640) return 1;
@@ -113,7 +109,6 @@ export default function Gallery() {
               ],
             }}
             onClick={({ index }) => setIndex(index)}
-            // Add a subtle spacing between images
             spacing={20}
           />
         </div>
@@ -124,28 +119,21 @@ export default function Gallery() {
           open={index >= 0}
           index={index}
           close={() => setIndex(-1)}
-          plugins={[Fullscreen, Slideshow, Thumbnails, Zoom, Captions]}
+          plugins={[Fullscreen, Slideshow, Thumbnails, Zoom]}
           animation={{ fade: 300 }}
           carousel={{
             finite: false,
             preload: 2,
-            padding: 20,
+            padding: 0,
           }}
-          // Add thumbnail configuration
           thumbnails={{
             position: "bottom",
             width: 120,
             height: 80,
-            border: 2,
+            border: 1,
             borderRadius: 4,
-            padding: 4,
+            padding: 0,
             gap: 10,
-          }}
-          // Add caption configuration for better display
-          captions={{
-            showToggle: true,
-            descriptionTextAlign: "center",
-            descriptionMaxLines: 3,
           }}
         />
       </motion.div>

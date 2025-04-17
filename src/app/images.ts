@@ -1,7 +1,5 @@
-// images.ts
-// This file pre-configures all gallery images with their metadata
+// Define the type for our gallery images - v5
 
-// Define the type for our gallery images
 export interface GalleryImage {
   src: string;
   width: number;
@@ -19,30 +17,63 @@ export interface GalleryImage {
 const baseBlurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAEtAI8V7lZRwAAAABJRU5ErkJggg==";
 
 // Pre-defined image aspect ratios for common image sizes in the gallery
-// These will be used as placeholders until the actual images load
-// This prevents layout shifts by having dimensions that match the real images
 const aspectRatios = {
-  landscape: { width: 1200, height: 800 },    // 3:2 ratio
-  portrait: { width: 800, height: 1200 },     // 2:3 ratio
-  square: { width: 1000, height: 1000 },      // 1:1 ratio
-  panorama: { width: 1500, height: 600 },     // 5:2 ratio
+  landscape: { width: 1200, height: 800 },   // 3:2 ratio
+  portrait: { width: 800, height: 1200 },    // 2:3 ratio
+  square: { width: 1000, height: 1000 },     // 1:1 ratio
+  panorama: { width: 1500, height: 600 },    // 5:2 ratio
 };
 
-// Define image types based on their position in the gallery
-// This helps maintain consistent layout while images load
-function getImageType(index: number): 'landscape' | 'portrait' | 'square' | 'panorama' {
-  // Create a pattern for image types based on index
-  if (index % 3 === 0) return 'landscape';
-  if (index % 3 === 1) return 'portrait';
-  if (index % 5 === 0) return 'panorama';
-  if (index % 7 === 0) return 'square';
-  return 'landscape'; // Default
-}
+// Manually define image orientations based on filename
+// This approach is more reliable when dynamic loading isn't working
+const imageOrientations: Record<number, 'landscape' | 'portrait' | 'square' | 'panorama'> = {
+  // First 10 images - vary these as needed based on your actual images
+  1: 'landscape',
+  2: 'portrait',
+  3: 'landscape',
+  4: 'square',
+  5: 'portrait',
+  6: 'landscape',
+  7: 'panorama',
+  8: 'portrait',
+  9: 'landscape',
+  10: 'square',
+  // Images 11-20
+  11: 'portrait',
+  12: 'landscape',
+  13: 'portrait',
+  14: 'landscape',
+  15: 'panorama',
+  16: 'square',
+  17: 'portrait',
+  18: 'landscape',
+  19: 'portrait',
+  20: 'landscape',
+  // Images 21-30
+  21: 'square',
+  22: 'landscape',
+  23: 'portrait',
+  24: 'landscape',
+  25: 'panorama',
+  26: 'portrait',
+  27: 'landscape',
+  28: 'square',
+  29: 'portrait',
+  30: 'landscape',
+  // Images 31-35
+  31: 'portrait',
+  32: 'landscape',
+  33: 'panorama',
+  34: 'square',
+  35: 'landscape'
+};
 
-// Generate gallery images configuration
+// Generate gallery images configuration with manually specified orientations
 export const galleryImages: GalleryImage[] = Array.from({ length: 35 }, (_, i) => {
   const imageNumber = i + 1;
-  const imageType = getImageType(imageNumber);
+  
+  // Get the orientation from our mapping, or default to landscape
+  const imageType = imageOrientations[imageNumber] || 'landscape';
   const { width, height } = aspectRatios[imageType];
   
   return {
@@ -52,14 +83,10 @@ export const galleryImages: GalleryImage[] = Array.from({ length: 35 }, (_, i) =
     title: `Photo ${imageNumber}`,
     description: `Beautiful photography work, image ${imageNumber}`,
     blurDataURL: baseBlurDataURL,
-    // Adding key properties that Next.js Image can use for optimization
     sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw",
-    // Placeholder dimensions match actual image aspect ratio to prevent layout shift
     placeholder: "blur",
-    // Add metadata for lightbox display
     alt: `Gallery photo ${imageNumber}`,
-    // Higher quality for thumbnails
-    quality: 95,
+    quality: 75,
   };
 });
 
@@ -74,6 +101,6 @@ export function getOptimizedImageProps(photo: GalleryImage) {
     blurDataURL: photo.blurDataURL,
     placeholder: "blur",
     sizes: photo.sizes,
-    quality: photo.quality || 95,
+    quality: photo.quality || 75,
   };
 }
